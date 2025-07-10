@@ -23,6 +23,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    restart: always
     env_file:
       - ./backend/.env
     environment:
@@ -31,7 +32,6 @@ services:
     ports:
       - "8081:3000"
     volumes:
-      - ./backend:/app
       - ./backend/certs:/app/certs
     depends_on:
       - db
@@ -41,6 +41,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    restart: always
     env_file:
       - ./frontend/.env
     ports:

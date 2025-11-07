@@ -49,5 +49,37 @@ services:
     depends_on:
       - backend
 
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/catalogo.conf:/etc/nginx/conf.d/catalogo.conf
+      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    depends_on:
+      - frontend
+      - backend
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    entrypoint: >
+      sh -c "certbot certonly --webroot
+            --webroot-path=/var/www/certbot
+            --email fernando@apolo.com.py
+            --agree-tos --no-eff-email
+            -d catalogo.apolo.com.py && 
+            while :; do 
+              certbot renew --webroot --webroot-path=/var/www/certbot && 
+              nginx -s reload; 
+              sleep 12h; 
+            done"      
+
 volumes:
   postgres_data:
